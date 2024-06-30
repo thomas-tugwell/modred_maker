@@ -2,7 +2,10 @@
 
 #Script written by Thomas H. Tugwell
 #
-#This script generates modredundant files for Gaussian calculations over a specified change in bond distances. It takes command-line arguments specifying the input file, atom indices for the bond, extension range, step size, and output prefix.
+#This script generates modredundant files for Gaussian calculations over a specified change in bond distances. 
+#It takes command-line arguments specifying the input file, atom indices for the bond (atom_index_1 is fixed), extension range(min,max), step size(number of files), 
+# output prefix, and a list of other atoms to move along the same vector.
+
 #usage: modred_maker_improved.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix> <fragment_list>
 #example input: modred_maker_improved.py test.gjf 23 19 0 5 10 mod '[15,16,17,18,20,21,22,32]'
 
