@@ -162,8 +162,8 @@ def main(input_file, bond_indices, extension_range, step_size, output_prefix,fra
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 9:
-        print("Usage: python modred_maker.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix> <fragment_list>")
+    if len(sys.argv) < 8:
+        print("Usage: python modred_maker.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix> [<fragment_list>]")
         sys.exit(1)
 
     input_file = sys.argv[1]
@@ -172,14 +172,13 @@ if __name__ == '__main__':
     step_size = int(sys.argv[6])
     output_prefix = sys.argv[7]
     
-    fragment_list = sys.argv[8].strip('[]').split(',')
-    fragment_index = [int(item) for item in fragment_list]
+    fragment_index = []
+    if len(sys.argv) > 8:
+        fragment_list = sys.argv[8].strip('[]').split(',')
+        fragment_index = [int(item) for item in fragment_list]
 
     output_files = main(input_file, bond_indices, extension_range, step_size, output_prefix, fragment_index)
-
-    #output_files = main(input_file, bond_indices, extension_range, step_size, output_prefix)
 
     print("Output files created:")
     for output_file in output_files:
         print(output_file)
-
