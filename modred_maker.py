@@ -1,11 +1,16 @@
+#!/usr/bin/env python
+
 #Script written by Thomas H. Tugwell
 #
 #This script generates modredundant files for Gaussian calculations over a specified change in bond distances. It takes command-line arguments specifying the input file, atom indices for the bond, extension range, step size, and output prefix.
-#usage: python modred_maker.py <gaussian_input_file> <atom1> <atom2> <distance1> <distances2> <step>
+#usage: modred_maker_improved.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix> <fragment_list>
+#example input: modred_maker_improved.py test.gjf 23 19 0 5 10 mod '[15,16,17,18,20,21,22,32]'
 
 import sys
 import os
 import numpy as np
+
+print("\nNOTE: MAKE SURE YOU HAVE CHANGED BASIS SET, CHARGE, MULT., ETC... IN THIS SCRIPT BEFORE USE.\n")
 
 def parse_gaussian_input(input_file):
     """
@@ -62,13 +67,13 @@ def generate_gaussian_input(route_card, title_card, charge, multiplicity, atoms,
     Returns:
         input_string (str): Gaussian input string.
     """
-    basis1_atoms = "C H N O 0"
-    basis1 = "6-31G(d)"
-    basis2_atoms = "Cu 0"
-    basis2 = "SDD"
+    #basis1_atoms = "C H F O Br 0"
+    #basis1 = "6-31+G(d,p)"
+    #basis2_atoms = "Ni 0"
+    #basis2 = "SDD"
     
-    input_string = "%nproc=12\n"
-    input_string += "%mem=2GB\n"
+    input_string = "%nproc=16\n"
+    input_string += "%mem=32GB\n"
     input_string += f"{route_card}\n"
     input_string += "\n"
     input_string += f"{title_card}\n"
@@ -78,20 +83,20 @@ def generate_gaussian_input(route_card, title_card, charge, multiplicity, atoms,
     for atom, coord in zip(atoms, coords):
         x, y, z = coord
         input_string += f"{atom:2s} {x:12.6f} {y:12.6f} {z:12.6f}\n"
-        
+    input_string += "\nB 16 5 F" #Only use this line if you need to constrain additional bonds    
     input_string += f"\nB {bond_indices[0]} {bond_indices[1]} F\n\n"
-    input_string += f"{basis1_atoms}\n"
-    input_string += f"{basis1}\n"
-    input_string += f"****\n"
-    input_string += f"{basis2_atoms}\n"
-    input_string += f"{basis2}\n"
-    input_string += f"****\n\n"
-    input_string += f"{basis2_atoms}\n"
-    input_string += f"{basis2}\n\n"
+    #input_string += f"{basis1_atoms}\n"
+    #input_string += f"{basis1}\n"
+    #input_string += f"****\n"
+    #input_string += f"{basis2_atoms}\n"
+    #input_string += f"{basis2}\n"
+    #input_string += f"****\n\n"
+    #input_string += f"{basis2_atoms}\n"
+    #input_string += f"{basis2}\n\n"
 
     return input_string
 
-def main(input_file, bond_indices, extension_range, step_size, output_prefix):
+def main(input_file, bond_indices, extension_range, step_size, output_prefix,fragment_list):
     """
     Main function that generates modredundant files for Gaussian with specified bond extensions.
 
@@ -110,6 +115,8 @@ def main(input_file, bond_indices, extension_range, step_size, output_prefix):
     atom1_index = bond_indices[0] - 1
     atom2_index = bond_indices[1] - 1
 
+    fragment_index = [x - 1 for x in fragment_list]
+
     bond_length = np.linalg.norm(np.array(coords[atom1_index]) - np.array(coords[atom2_index]))
 
     output_files = []
@@ -122,12 +129,24 @@ def main(input_file, bond_indices, extension_range, step_size, output_prefix):
         new_coords = coords.copy()
         new_coords[atom2_index] = np.array(coords[atom1_index]) + (np.array(coords[atom2_index]) - np.array(coords[atom1_index])) * (new_bond_length / bond_length)
 
+        change_vector = new_coords[atom2_index] - coords[atom2_index] #calculates the vector that atom2 moved from atom1 (used for moving fragment)
+        
+        for idx in fragment_index:
+            new_fragment_coords = [
+            coords[idx][0] + change_vector[0],
+            coords[idx][1] + change_vector[1],
+            coords[idx][2] + change_vector[2]
+            ]
+            new_coords[idx] = new_fragment_coords
+        
+
+        
         output_file = f"{output_prefix}_{i}.gjf"
         output_files.append(output_file)
 
-        route_card = "# opt=modredundant freq m062x/6-31G(d)"
-        title_card = "# your_title_card_here"
-        charge = 0
+        route_card = "# opt=modredundant freq 6-31g(d) m062x"
+        title_card = "# modreds"
+        charge = -1
         multiplicity = 1
         
         gaussian_input = generate_gaussian_input(route_card, title_card, charge, multiplicity, atoms, new_coords)
@@ -137,9 +156,10 @@ def main(input_file, bond_indices, extension_range, step_size, output_prefix):
 
     return output_files
 
+
 if __name__ == '__main__':
-    if len(sys.argv) != 8:
-        print("Usage: python modred_maker.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix>")
+    if len(sys.argv) != 9:
+        print("Usage: python modred_maker.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix> <fragment_list>")
         sys.exit(1)
 
     input_file = sys.argv[1]
@@ -147,9 +167,15 @@ if __name__ == '__main__':
     extension_range = [float(sys.argv[4]), float(sys.argv[5])]
     step_size = int(sys.argv[6])
     output_prefix = sys.argv[7]
+    
+    fragment_list = sys.argv[8].strip('[]').split(',')
+    fragment_index = [int(item) for item in fragment_list]
 
-    output_files = main(input_file, bond_indices, extension_range, step_size, output_prefix)
+    output_files = main(input_file, bond_indices, extension_range, step_size, output_prefix, fragment_index)
+
+    #output_files = main(input_file, bond_indices, extension_range, step_size, output_prefix)
 
     print("Output files created:")
     for output_file in output_files:
         print(output_file)
+
