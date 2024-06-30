@@ -67,10 +67,6 @@ def generate_gaussian_input(route_card, title_card, charge, multiplicity, atoms,
     Returns:
         input_string (str): Gaussian input string.
     """
-    #basis1_atoms = "C H F O Br 0"
-    #basis1 = "6-31+G(d,p)"
-    #basis2_atoms = "Ni 0"
-    #basis2 = "SDD"
     
     input_string = "%nproc=16\n"
     input_string += "%mem=32GB\n"
@@ -83,9 +79,14 @@ def generate_gaussian_input(route_card, title_card, charge, multiplicity, atoms,
     for atom, coord in zip(atoms, coords):
         x, y, z = coord
         input_string += f"{atom:2s} {x:12.6f} {y:12.6f} {z:12.6f}\n"
-    input_string += "\nB 16 5 F" #Only use this line if you need to constrain additional bonds    
+    #input_string += "\nB 16 5 F" #Only use this line if you need to constrain additional bonds    
     input_string += f"\nB {bond_indices[0]} {bond_indices[1]} F\n\n"
-    #input_string += f"{basis1_atoms}\n"
+    
+    #basis1_atoms = "C H F O Br 0"             # Use these lines to add infor if using mixed basis set
+    #basis1 = "6-31+G(d,p)"
+    #basis2_atoms = "Ni 0"
+    #basis2 = "SDD"
+    #input_string += f"{basis1_atoms}\n"    
     #input_string += f"{basis1}\n"
     #input_string += f"****\n"
     #input_string += f"{basis2_atoms}\n"
