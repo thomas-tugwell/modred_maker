@@ -164,6 +164,7 @@ def main(input_file, bond_indices, extension_range, step_size, output_prefix,fra
 if __name__ == '__main__':
     if len(sys.argv) < 8:
         print("Usage: python modred_maker.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix> [<fragment_list>]")
+        print("Example input: modred_maker.py gaussian_input.gjf 23 19 0 5 10 mod '[15,16,17,18,20,21,22,32]")
         sys.exit(1)
 
     input_file = sys.argv[1]
