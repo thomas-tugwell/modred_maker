@@ -16,5 +16,5 @@ numfiles1=10 # how many files will be generated for bond 1, increments will be e
 numfiles2=10 # how many files will be generated for bond 2, increments will be evenly distributed based on displacement
 
 modred_maker.py "${input_file}" "${bond1[0]}" "${bond1[1]}" "${bond1range[0]}" "${bond1range[1]}" "${numfiles1}" B1 "[${fragment1}]"
-for i in B1*; do modred_maker_improved.py "$i" "${bond2[0]}" "${bond2[1]}" "${bond2range[0]}" "${bond2range[1]}" "${numfiles2}" "${i%.gjf}_B2" "[${fragment2}]"; done
+for i in B1*; do modred_maker.py "$i" "${bond2[0]}" "${bond2[1]}" "${bond2range[0]}" "${bond2range[1]}" "${numfiles2}" "${i%.gjf}_B2" "[${fragment2}]"; done
 
