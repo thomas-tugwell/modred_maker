@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-#Script written by Thomas H. Tugwell
+#Written by Thomas H. Tugwell
 #
-#This script generates modredundant files for Gaussian calculations over a specified change in bond distances. 
-#It takes command-line arguments specifying the input file, atom indices for the bond (atom_index_1 is fixed), extension range(min,max), step size(number of files), 
+#This program generates modredundant files for Gaussian calculations over a specified change in bond distances. 
+#It takes command-line arguments specifying the input file, atom indices for the bond (atom_index_1 is fixed), extension range(min,max) in angstroms, step size(number of files), 
 # output prefix, and a list of other atoms to move along the same vector.
 
 #usage: modred_maker_improved.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix> <fragment_list>
@@ -133,7 +133,7 @@ def main(input_file, bond_indices, extension_range, step_size, output_prefix,fra
         new_coords = coords.copy()
         new_coords[atom2_index] = np.array(coords[atom1_index]) + (np.array(coords[atom2_index]) - np.array(coords[atom1_index])) * (new_bond_length / bond_length)
 
-        change_vector = new_coords[atom2_index] - coords[atom2_index] #calculates the vector that atom2 moved from atom1 (used for moving fragment)
+        change_vector = new_coords[atom2_index] - coords[atom2_index] #calculates the vector that atom2 moved from atom1 (used for moving rest of fragment)
         
         for idx in fragment_index:
             new_fragment_coords = [
@@ -144,8 +144,8 @@ def main(input_file, bond_indices, extension_range, step_size, output_prefix,fra
             new_coords[idx] = new_fragment_coords
         
 
-        
-        output_file = f"{output_prefix}_{i}.gjf"
+        output_file = f"{atoms[atom1_index]}-{atoms[atom2_index]}_{new_bond_length:.1f}.gjf"
+        #output_file = f"{output_prefix}_{i}.gjf"
         output_files.append(output_file)
 
         route_card = "# opt=modredundant freq 6-31g(d) m062x"
