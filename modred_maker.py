@@ -4,9 +4,9 @@
 #
 #This program generates modredundant files for Gaussian calculations over a specified change in bond distances. 
 #It takes command-line arguments specifying the input file, atom indices for the bond (atom_index_1 is fixed), extension range(min,max) in angstroms, step size(number of files), 
-# output prefix, and a list of other atoms to move along the same vector.
+# , and a list of other atoms to move along the same vector.
 
-#usage: modred_maker_improved.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix> <fragment_list>
+#usage: modred_maker_improved.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <fragment_list>
 #example input: modred_maker_improved.py test.gjf 23 19 0 5 10 mod '[15,16,17,18,20,21,22,32]'
 
 import sys
@@ -100,7 +100,7 @@ def generate_gaussian_input(route_card, title_card, charge, multiplicity, atoms,
 
     return input_string
 
-def main(input_file, bond_indices, extension_range, step_size, output_prefix,fragment_list):
+def main(input_file, bond_indices, extension_range, step_size, fragment_list):
     """
     Main function that generates modredundant files for Gaussian with specified bond extensions.
 
@@ -162,23 +162,23 @@ def main(input_file, bond_indices, extension_range, step_size, output_prefix,fra
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 8:
-        print("Usage: python modred_maker.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size> <output_prefix> [<fragment_list>]")
-        print("Example input: modred_maker.py gaussian_input.gjf 23 19 0 5 10 mod '[15,16,17,18,20,21,22,32]")
+    if len(sys.argv) < 7:
+        print("Usage: python modred_maker.py <input_file> <atom_index_1> <atom_index_2> <extension_min> <extension_max> <step_size>  [<fragment_list>]")
+        print("Example input: modred_maker.py gaussian_input.gjf 23 19 0 5 10 '[15,16,17,18,20,21,22,32]")
         sys.exit(1)
 
     input_file = sys.argv[1]
     bond_indices = [int(sys.argv[2]), int(sys.argv[3])]
     extension_range = [float(sys.argv[4]), float(sys.argv[5])]
     step_size = int(sys.argv[6])
-    output_prefix = sys.argv[7]
+
     
     fragment_index = []
-    if len(sys.argv) > 8:
-        fragment_list = sys.argv[8].strip('[]').split(',')
+    if len(sys.argv) > 7:
+        fragment_list = sys.argv[7].strip('[]').split(',')
         fragment_index = [int(item) for item in fragment_list]
 
-    output_files = main(input_file, bond_indices, extension_range, step_size, output_prefix, fragment_index)
+    output_files = main(input_file, bond_indices, extension_range, step_size, fragment_index)
 
     print("Output files created:")
     for output_file in output_files:
